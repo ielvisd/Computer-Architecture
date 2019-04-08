@@ -50,6 +50,13 @@ void cpu_run(struct cpu *cpu)
   while (running) {
     // TODO
     // 1. Get the value of the current instruction (in address PC).
+
+     printf("Registers:\n[ ");
+        for (int i = 0; i<8; i++){
+            printf("%d ", cpu->ram[i]);
+        }
+        printf("]\n");
+
     // 2. Figure out how many operands this next instruction requires
     // 3. Get the appropriate value(s) of the operands following this instruction
     // 4. switch() over it to decide on a course of action.
@@ -64,4 +71,6 @@ void cpu_run(struct cpu *cpu)
 void cpu_init(struct cpu *cpu)
 {
   // TODO: Initialize the PC and other special registers
+
+
 }
