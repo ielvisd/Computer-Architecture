@@ -2,13 +2,15 @@
 #define _CPU_H_
 
 // Holds all information about the CPU
+// Has a program counter, 8 registers & 256 bytes of ram
 struct cpu {
   // TODO
   // PC
+  unsigned char PC;
   // registers (array)
-  unsigned int registers;
+  unsigned char registers[8];
   // ram (array)
-  unsigned int ram;
+  unsigned char ram[256];
 };
 
 // ALU operations
