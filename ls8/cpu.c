@@ -8,24 +8,51 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+void cpu_load(struct cpu *cpu, int argc, char **argv)
 {
-  char data[DATA_LEN] = {
-      // From print8.ls8
-      0b10000010, // LDI R0,8
-      0b00000000,
-      0b00001000,
-      0b01000111, // PRN R0
-      0b00000000,
-      0b00000001 // HLT
-  };
+  // char data[DATA_LEN] = {
+  //     // From print8.ls8
+  //     0b10000010, // LDI R0,8
+  //     0b00000000,
+  //     0b00001000,
+  //     0b01000111, // PRN R0
+  //     0b00000000,
+  //     0b00000001 // HLT
+  // };
 
-  int address = 0;
+  // int address = 0;
 
-  for (int i = 0; i < DATA_LEN; i++)
+  // for (int i = 0; i < DATA_LEN; i++)
+  // {
+  //   cpu->ram[address++] = data[i];
+  // }
+
+  if (argc != 2)
   {
-    cpu->ram[address++] = data[i];
+    printf("Correct usage: ./files file_name.extension\n");
+    return;
   }
+  FILE *fp;
+  char line[256];
+  fp = fopen(argv[1], "r");
+  if (fp == NULL)
+  {
+    printf("Error opening file.\n");
+    return;
+  }
+  int address = 0;
+  while (fgets(line, 256, fp) != NULL)
+  {
+    char *endptr;
+    unsigned char val = strtoul(line, &endptr, 2);
+    if (line == endptr)
+    {
+      //         printf("skipping: %s", line);
+      continue;
+    }
+    cpu->ram[address++] = val;
+  }
+  fclose(fp);
 
   // TODO: Replace this with something less hard-coded
 }
@@ -88,7 +115,7 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 3;
       break;
     case PRN:
-      printf("%d\n", cpu ->registers[operand0]);
+      printf("%d\n", cpu->registers[operand0]);
       cpu->PC += 2;
       break;
     case HLT:
