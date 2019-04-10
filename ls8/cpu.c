@@ -65,15 +65,15 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op)
   {
   case ALU_MUL:
-      // `MUL registerA registerB`
+    // `MUL registerA registerB`
 
-      // Multiply the values in two registers together and store the result in registerA.
+    // Multiply the values in two registers together and store the result in registerA.
 
-      // Machine code:
-      // ```
-      // 10100010 00000aaa 00000bbb
-      // A2 0a 0b
-      // ```
+    // Machine code:
+    // ```
+    // 10100010 00000aaa 00000bbb
+    // A2 0a 0b
+    // ```
 
     // TODO
     // printf("cpu->PC  is: %d\n", cpu->PC );
@@ -110,6 +110,8 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
+  unsigned char reg_num, val;
+  
   while (running)
   {
     // TODO
@@ -143,6 +145,24 @@ void cpu_run(struct cpu *cpu)
     case MUL:
       alu(cpu, ALU_MUL, operand0, operand1);
       cpu->PC += 3;
+      break;
+    case PUSH:
+      cpu->registers[7]--; //our SP
+
+      reg_num = cpu->ram[cpu->PC +1];
+      val = cpu->registers[reg_num];
+
+      cpu->ram[cpu->registers[7]] = val;
+
+      cpu->PC += 2; //our program counter
+      break;
+    case POP:
+      reg_num = cpu->ram[cpu->PC +1];
+      cpu->registers[reg_num] = cpu->ram[cpu->registers[7]];
+
+      cpu->registers[7]++;
+
+      cpu->PC += 2; //our program counter
       break;
     // Adds default case in case it gets a case it doesn't recognize
     default:
