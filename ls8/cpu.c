@@ -65,7 +65,26 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
   switch (op)
   {
   case ALU_MUL:
+      // `MUL registerA registerB`
+
+      // Multiply the values in two registers together and store the result in registerA.
+
+      // Machine code:
+      // ```
+      // 10100010 00000aaa 00000bbb
+      // A2 0a 0b
+      // ```
+
     // TODO
+    // printf("cpu->PC  is: %d\n", cpu->PC );
+
+    // regA = cpu->ram[cpu->PC + 1];
+    // printf("regA is: %d\n", regA);
+    // regB = cpu->ram[cpu->PC + 2];
+    // printf("regB is: %d\n", regA);
+
+    cpu->registers[regA] = cpu->registers[regA] * cpu->registers[regB];
+
     break;
 
     // TODO: implement more ALU ops
@@ -120,6 +139,10 @@ void cpu_run(struct cpu *cpu)
       break;
     case HLT:
       running = 0;
+      break;
+    case MUL:
+      alu(cpu, ALU_MUL, operand0, operand1);
+      cpu->PC += 3;
       break;
     // Adds default case in case it gets a case it doesn't recognize
     default:
