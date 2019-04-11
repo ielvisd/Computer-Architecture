@@ -87,6 +87,12 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 
     break;
 
+  case ALU_ADD:
+
+    cpu->registers[regA] = cpu->registers[regA] + cpu->registers[regB];
+
+    break;
+
     // TODO: implement more ALU ops
   }
 }
@@ -110,8 +116,8 @@ void cpu_run(struct cpu *cpu)
 {
   int running = 1; // True until we get a HLT instruction
 
-  unsigned char reg_num, val;
-  
+  unsigned char reg_num, val, return_addr;
+
   while (running)
   {
     // TODO
@@ -146,10 +152,33 @@ void cpu_run(struct cpu *cpu)
       alu(cpu, ALU_MUL, operand0, operand1);
       cpu->PC += 3;
       break;
+
+    case ADD:
+      alu(cpu, ALU_ADD, operand0, operand1);
+      cpu->PC += 3;
+      break;
+    case CALL:
+
+      //save our spot where we want to go back to
+      return_addr = cpu->PC + 2;
+      cpu->registers[7]--;
+      cpu->ram[cpu->registers[7]] = return_addr;
+
+      //move the PC to the address of the subroutine
+      reg_num = cpu->ram[cpu->PC + 1];
+      cpu->PC = cpu->registers[reg_num];
+
+      break;
+    case RET:
+
+      //pop the PC off the stack
+      cpu->PC = cpu->ram[cpu->registers[7]];
+      cpu->registers[7]++;
+      break;
     case PUSH:
       cpu->registers[7]--; //our SP
 
-      reg_num = cpu->ram[cpu->PC +1];
+      reg_num = cpu->ram[cpu->PC + 1];
       val = cpu->registers[reg_num];
 
       cpu->ram[cpu->registers[7]] = val;
@@ -157,7 +186,7 @@ void cpu_run(struct cpu *cpu)
       cpu->PC += 2; //our program counter
       break;
     case POP:
-      reg_num = cpu->ram[cpu->PC +1];
+      reg_num = cpu->ram[cpu->PC + 1];
       cpu->registers[reg_num] = cpu->ram[cpu->registers[7]];
 
       cpu->registers[7]++;
