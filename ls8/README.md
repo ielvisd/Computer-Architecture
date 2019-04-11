@@ -61,7 +61,9 @@ but you'll have to implement those three above instructions first!
 ## Step 0: IMPORTANT: inventory what is here!
 
 * Make a list of files here.
+- Examples Folder, cpu.c, cpu.h, ls8.c & asm folder
 * Write a short 3-10-word description of what each file does.
+- I think CPU.c is acting as our CPU, CPU.h has the structs & methods? ls8.c as the emulator? 
 * Note what has been implemented, and what hasn't.
 * Read this whole file.
 * Skim the spec.
