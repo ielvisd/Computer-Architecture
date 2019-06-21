@@ -10,6 +10,8 @@ struct cpu {
   unsigned char reg[8];   // registers (array)
   unsigned char ram[256]; // ram (array)
 
+  //////// SPRINT ////////
+  unsigned int flag;
 };
 
 // ALU operations
@@ -19,6 +21,10 @@ enum alu_op
   
 	// Add more here
   ALU_ADD
+
+  //////// SPRINT ////////
+  ALU_CMP
+
 };
 
 // Instructions
@@ -37,7 +43,14 @@ enum alu_op
 #define CALL 0b01010000
 #define RET  0b00010001
 
-// TODO: more instructions here. These can be used in cpu_run().
+//////// SPRINT ////////
+#define CMP 0b
+#define JMP 0b
+#define JEQ 0b
+#define JNE 0b
+
+// TODO: more instructions here. 
+// These can be used in cpu_run().
 
 // Function declarations
 

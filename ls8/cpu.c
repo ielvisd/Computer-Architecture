@@ -172,7 +172,6 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   // The SP points at address `F4` if the stack is empty.
   cpu->reg[SP] = 0xF4;
-  //cpu->FL = 4;
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
