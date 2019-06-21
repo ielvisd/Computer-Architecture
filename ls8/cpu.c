@@ -36,9 +36,7 @@ void cpu_load(struct cpu *cpu, char *filename)
 
     cpu_ram_write(cpu, ram_address++, value);
   }
-
   fclose(fp);
-  
 }
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
@@ -67,6 +65,27 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
       cpu->reg[regA] += cpu->reg[regB];
       break;
     
+     //////// SPRINT ////////
+    case ALU_CMP:
+      // if equal: E flag set to 1 or set it to NULL?
+      if (cpu->reg[regA] == cpu->reg[regB])
+      {
+        cpu->flag = cpu->flag | (1 << 0);
+      }
+
+      // if less than L flag set to 1
+      else if (cpu->reg[regA] > cpu->reg[regB])
+      {
+        cpu->flag = cpu->flag | (1 << 1);
+      }
+
+      // else G flag set to 1
+      else
+      {
+        cpu->flag = cpu->flag | (1 << 2);
+      }
+
+      break;
   }
 }
 
@@ -147,6 +166,11 @@ void cpu_run(struct cpu *cpu)
         cpu->reg[SP]++;
         break;
 
+      //////// SPRINT ////////
+      case CMP:
+        alu(cpu, ALU_CMP, operandA, operandB);
+        break;
+
       default:
         printf("unexpected instruction 0x%02x at 0x%02x\n", IR, cpu->PC);
         exit(1);
@@ -172,6 +196,7 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   // The SP points at address `F4` if the stack is empty.
   cpu->reg[SP] = 0xF4;
+  cpu->flag = 4;
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }

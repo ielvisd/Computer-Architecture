@@ -20,7 +20,7 @@ enum alu_op
 	ALU_MUL, 
   
 	// Add more here
-  ALU_ADD
+  ALU_ADD,
 
   //////// SPRINT ////////
   ALU_CMP
@@ -44,10 +44,10 @@ enum alu_op
 #define RET  0b00010001
 
 //////// SPRINT ////////
-#define CMP 0b
-#define JMP 0b
-#define JEQ 0b
-#define JNE 0b
+#define CMP 0b10100111
+#define JMP 0b01010100
+#define JEQ 0b01010101
+#define JNE 0b01010110
 
 // TODO: more instructions here. 
 // These can be used in cpu_run().
