@@ -8,28 +8,37 @@
 /**
  * Load the binary bytes from a .ls8 source file into a RAM array
  */
-void cpu_load(struct cpu *cpu)
+
+// Filename should be passed in as an argument
+// Implement the cpu_load() function to load an .ls8 file 
+void cpu_load(struct cpu *cpu, char *filename)
 {
-  char data[DATA_LEN] = {
-    // From print8.ls8
-    0b10000010, // LDI R0,8
-    0b00000000,
-    0b00001000,
-    0b01000111, // PRN R0
-    0b00000000,
-    0b00000001  // HLT
-  };
+  // TODO: Replace this with something less hard-coded
+  FILE *fp = fopen(filename, "r");
+  char line[1024];
+  unsigned char ram_address = 0x00;
 
-  int address = 0;
-
-  for (int i = 0; i < DATA_LEN; i++) {
-    cpu->ram[address++] = data[i];
+  if (fp == NULL)
+  {
+    fprintf(stderr, "unable to open file\n");
+    exit(2);
   }
 
-  // TODO: Replace this with something less hard-coded
-  // Implement the cpu_load() function to load an .ls8 file 
-  // Filename should be passed in as an argument
-  //Implement a Multiply instruction and Print the result (run mult8.ls8)
+  while (fgets(line, sizeof(line), fp) != NULL)
+  {
+    char *end_pointer;
+    unsigned char value = strtoul(line, &end_pointer, 2);
+
+    if (end_pointer == line)
+    {
+      continue;
+    }
+
+    cpu_ram_write(cpu, ram_address++, value);
+  }
+
+  fclose(fp);
+  
 }
 
 unsigned char cpu_ram_read(struct cpu *cpu, unsigned char mar)
@@ -49,10 +58,15 @@ void alu(struct cpu *cpu, enum alu_op op, unsigned char regA, unsigned char regB
 {
   switch (op) {
     case ALU_MUL:
-      // TODO
+      cpu->reg[regA] *= cpu->reg[regB];
       break;
 
     // TODO: implement more ALU ops
+
+    case ALU_ADD: //`ADD registerA registerB`
+      cpu->reg[regA] += cpu->reg[regB];
+      break;
+    
   }
 }
 
@@ -85,10 +99,6 @@ void cpu_run(struct cpu *cpu)
     {
       operandA = cpu_ram_read(cpu, (cpu->PC+1) & 0xff);
     }
-    else 
-    {
-      return (1);
-    }
     // 4. switch() over it to decide on a course of action.
     int instruction_set_pc = (IR >> 4) & 1;
 
@@ -106,6 +116,37 @@ void cpu_run(struct cpu *cpu)
         printf("%d\n", cpu->reg[operandA]);
         break;
       
+      case MUL:  //multiply 
+        alu(cpu, ALU_MUL, operandA, operandB);
+        break;
+      
+      case ADD:
+        alu(cpu, ALU_ADD, operandA, operandB);
+        break;
+      
+      case PUSH:
+        cpu->reg[SP]--; 
+        cpu->ram[cpu->reg[SP]] = cpu->reg[operandA]; 
+        break;
+      
+      case POP:
+        cpu->reg[operandA] = cpu->ram[cpu->reg[SP]]; //Copy the value from the address pointed to by `SP` to the given register.
+        cpu->reg[SP]++; 
+        break;
+      
+      case CALL:
+      /*Calls a subroutine (function) at the address stored in the register.*/
+        cpu->reg[SP]--;
+        cpu->ram[cpu->reg[SP]] = cpu->PC + 2;
+        cpu->PC = cpu->reg[operandA];
+        next_pc = -1;
+        break;
+ 
+      case RET:
+        cpu->PC = cpu->ram[cpu->reg[SP]];//Pop the value from the top of the stack and store it in the `PC`.
+        cpu->reg[SP]++;
+        break;
+
       default:
         printf("unexpected instruction 0x%02x at 0x%02x\n", IR, cpu->PC);
         exit(1);
@@ -131,7 +172,7 @@ void cpu_init(struct cpu *cpu)
   cpu->PC = 0;
   // The SP points at address `F4` if the stack is empty.
   cpu->reg[SP] = 0xF4;
-  cpu->FL = 4;
+  //cpu->FL = 4;
   memset(cpu->reg, 0, sizeof(cpu->reg));
   memset(cpu->ram, 0, sizeof(cpu->ram));
 }
